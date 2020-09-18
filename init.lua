@@ -28,6 +28,31 @@ local m_rules = {
 	{x = 0,  y = -2, z = 0},
 }
 
+local function a_action_on(pos, node)
+	for _, obj in ipairs(minetest.get_objects_inside_radius(pos, 20)) do
+		local sound = minetest.sound_play("alarm_" .. node.name:split(":")[2], {
+			to_player = obj,
+			max_hear_distance = 20,
+			gain = 10.0,
+			loop = true,
+		})
+		local meta = minetest.get_meta(pos)
+		local sounds = minetest.parse_json(meta:get_string("sounds"))
+		table.insert(sounds, sound)
+		meta:set_string("sounds", minetest.write_json(sounds))
+	end
+end
+
+local function a_action_off(pos, node)
+	local meta = minetest.get_meta(pos)
+	local sounds = minetest.parse_json(meta:get_string("sounds"))
+	for _, sound in ipairs(sounds) do
+		minetest.sound_stop(sound)
+	end
+	sounds = {}
+	meta:set_string("sounds", minetest.write_json(sounds))
+end
+
 minetest.register_node("alarms:fire", {
 	description = "Fire alarm",
 	groups = {snappy = 1},
@@ -44,29 +69,12 @@ minetest.register_node("alarms:fire", {
 	mesecons = {
 		effector = {
 			rules = m_rules,
-			action_on = function(pos, node)
-				for _, obj in ipairs(minetest.get_objects_inside_radius(pos, 20)) do
-					local sound = minetest.sound_play("alarm_fire", {
-						to_player = obj,
-						max_hear_distance = 20,
-						gain = 10.0,
-						loop = true,
-					})
-					local meta = minetest.get_meta(pos)
-					local sounds = minetest.parse_json(meta:get_string("sounds"))
-					table.insert(sounds, sound)
-					meta:set_string("sounds", minetest.write_json(sounds))
-				end
-			end,
-			action_off = function(pos, node)
-				if not minetest.get_meta(pos):get_int("sound") then return end
-				minetest.sound_stop(minetest.get_meta(pos):get_int("sound"))
-			end,
+			action_on = a_action_on,
+			action_off = a_action_off,
 		},
 	},
 	on_destruct = function(pos)
-		if not minetest.get_meta(pos):get_int("sound") then return end
-		minetest.sound_stop(minetest.get_meta(pos):get_int("sound"))
+		a_action_off(pos, {name = "alarms:fire"})
 	end,
 })
 minetest.register_node("alarms:nuclear", {
@@ -85,27 +93,12 @@ minetest.register_node("alarms:nuclear", {
 	mesecons = {
 		effector = {
 			rules = m_rules,
-			action_on = function(pos, node)
-				for _, obj in ipairs(minetest.get_objects_inside_radius(pos, 20)) do
-					if not obj:is_player() then return end
-					local sound = minetest.sound_play("alarm_nuclear", {
-						to_player = obj:get_player_name(),
-						max_hear_distance = 20,
-						gain = 10.0,
-						loop = true,
-					})
-				end
-				minetest.get_meta(pos):set_int("sound", sound)
-			end,
-			action_off = function(pos, node)
-				if not minetest.get_meta(pos):get_int("sound") then return end
-				minetest.sound_stop(minetest.get_meta(pos):get_int("sound"))
-			end,
+			action_on = a_action_on,
+			action_off = a_action_off,
 		},
 	},
 	on_destruct = function(pos)
-		if not minetest.get_meta(pos):get_int("sound") then return end
-		minetest.sound_stop(minetest.get_meta(pos):get_int("sound"))
+		a_action_off(pos, {name = "alarms:nuclear"})
 	end,
 })
 minetest.register_node("alarms:intruder", {
@@ -124,26 +117,11 @@ minetest.register_node("alarms:intruder", {
 	mesecons = {
 		effector = {
 			rules = m_rules,
-			action_on = function(pos, node)
-				for _, obj in ipairs(minetest.get_objects_inside_radius(pos, 20)) do
-					if not obj:is_player() then return end
-					local sound = minetest.sound_play("alarm_intruder", {
-						to_player = obj:get_player_name(),
-						max_hear_distance = 20,
-						gain = 10.0,
-						loop = true,
-					})
-				end
-				minetest.get_meta(pos):set_int("sound", sound)
-			end,
-			action_off = function(pos, node)
-				if not minetest.get_meta(pos):get_int("sound") then return end
-				minetest.sound_stop(minetest.get_meta(pos):get_int("sound"))
-			end,
+			action_on = a_action_on,
+			action_off = a_action_off,
 		},
 	},
 	on_destruct = function(pos)
-		if not minetest.get_meta(pos):get_int("sound") then return end
-		minetest.sound_stop(minetest.get_meta(pos):get_int("sound"))
+		a_action_off(pos, {name = "alarms:nuclear"})
 	end,
 })

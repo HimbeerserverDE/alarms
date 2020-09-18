@@ -47,6 +47,7 @@ end
 local function a_action_off(pos, node)
 	local meta = minetest.get_meta(pos)
 	local sounds = minetest.parse_json(meta:get_string("sounds"))
+	if not sounds then return end
 	for _, sound in ipairs(sounds) do
 		minetest.sound_stop(sound)
 	end

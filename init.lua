@@ -38,7 +38,7 @@ minetest.register_node("alarms:fire", {
 	node_box = {
 		type = "fixed",
 		fixed = {
-			{-0.2, -0.2, -0.5, 0.2, 0.2, -0.4},
+			{-0.2, -0.2, 0.5, 0.2, 0.2, 0.4},
 		},
 	},
 	mesecons = {
@@ -46,14 +46,17 @@ minetest.register_node("alarms:fire", {
 			rules = m_rules,
 			action_on = function(pos, node)
 				for _, obj in ipairs(minetest.get_objects_inside_radius(pos, 20)) do
-					if not obj:is_player() then return end
 					local sound = minetest.sound_play("alarm_fire", {
-						to_player = obj:get_player_name(),
+						to_player = obj,
 						max_hear_distance = 20,
 						gain = 10.0,
+						loop = true,
 					})
+					local meta = minetest.get_meta(pos)
+					local sounds = minetest.parse_json(meta:get_string("sounds"))
+					table.insert(sounds, sound)
+					meta:set_string("sounds", minetest.write_json(sounds))
 				end
-				minetest.get_meta(pos):set_int("sound", sound)
 			end,
 			action_off = function(pos, node)
 				if not minetest.get_meta(pos):get_int("sound") then return end
@@ -89,6 +92,7 @@ minetest.register_node("alarms:nuclear", {
 						to_player = obj:get_player_name(),
 						max_hear_distance = 20,
 						gain = 10.0,
+						loop = true,
 					})
 				end
 				minetest.get_meta(pos):set_int("sound", sound)
@@ -114,7 +118,7 @@ minetest.register_node("alarms:intruder", {
 	node_box = {
 		type = "fixed",
 		fixed = {
-			{-0.2, -0.2, -0.5, 0.2, 0.2, -0.4},
+			{-0.2, -0.2, 0.5, 0.2, 0.2, 0.4},
 		},
 	},
 	mesecons = {
@@ -127,6 +131,7 @@ minetest.register_node("alarms:intruder", {
 						to_player = obj:get_player_name(),
 						max_hear_distance = 20,
 						gain = 10.0,
+						loop = true,
 					})
 				end
 				minetest.get_meta(pos):set_int("sound", sound)

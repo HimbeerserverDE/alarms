@@ -38,6 +38,7 @@ local function a_action_on(pos, node)
 		})
 		local meta = minetest.get_meta(pos)
 		local sounds = minetest.parse_json(meta:get_string("sounds"))
+		if not sounds then sounds = {} end
 		table.insert(sounds, sound)
 		meta:set_string("sounds", minetest.write_json(sounds))
 	end

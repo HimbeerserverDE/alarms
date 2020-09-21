@@ -31,7 +31,7 @@ local m_rules = {
 local function a_action_on(pos, node)
 	for _, obj in ipairs(minetest.get_objects_inside_radius(pos, 20)) do
 		local sound = minetest.sound_play("alarm_" .. node.name:split(":")[2], {
-			to_player = obj,
+			to_player = obj:get_player_name(),
 			max_hear_distance = 20,
 			gain = 10.0,
 			loop = true,
